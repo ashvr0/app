@@ -102,9 +102,12 @@ struct HomeView: View {
     }
 
     /// Uses a plain `Button` with programmatic navigation rather than a
-    /// `NavigationLink` here, since a `NavigationLink` used as a List row
+    /// `NavigationLink`, since a `NavigationLink` used as a List row
     /// automatically draws a trailing disclosure chevron ("›") over the
-    /// map, which looked out of place floating on top of the preview.
+    /// map preview. The map itself keeps `.allowsHitTesting(false)`
+    /// since this is only a thumbnail — the whole card navigates to the
+    /// interactive `AllStopsMapView` on tap, where pins ARE individually
+    /// tappable.
     private var mapPreview: some View {
         Button {
             showingAllStopsMap = true

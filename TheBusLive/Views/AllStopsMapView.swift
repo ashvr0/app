@@ -75,7 +75,10 @@ struct AllStopsMapView: View {
                         selectedStop = stop
                     } label: {
                         StopPin(stop: stop, isFavorite: favoritesManager.isFavorite(stop))
+                            .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .frame(minWidth: 44, minHeight: 44)
                 }
             }
         }

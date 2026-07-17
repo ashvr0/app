@@ -6,13 +6,13 @@ This app is not affiliated with or endorsed by Oahu Transit Services, Inc. Route
 
 ## What's included
 
-- SwiftUI app targeting iOS 17+, built with MVVM
-- Live arrivals, stop and route search, route details, vehicle tracking on a MapKit map
-- Favorites and recently viewed stops, persisted locally
-- Pull to refresh, loading/empty/error states throughout
-- A settings page with a light/dark/system appearance toggle
-- A GitHub Actions workflow that builds the project on macOS runners, since the project is authored on Linux/Windows
-- No third party dependencies: networking uses `URLSession` and `XMLParser`, both part of Foundation
+- SwiftUI app built for iOS 17+, built with MVVM.
+- Live arrivals, stop and route search, route details, vehicle tracking on a MapKit map.
+- Favorites and recently viewed stops, persisted locally.
+- Pull to refresh, loading/empty/error states throughout.
+- A settings page with a light/dark/system appearance toggle.
+- A GitHub Actions workflow that builds the project on macOS runners, since the project is authored on Linux/Windows.
+- No third party dependencies: networking uses `URLSession` and `XMLParser`, both part of Foundation.
 
 ## Project structure
 
@@ -54,7 +54,7 @@ TheBusLive/
 └── .github/workflows/ios-build.yml
 ```
 
-### Why XcodeGen instead of a committed `.xcodeproj`
+### Why XcodeGen instead of a committed? `.xcodeproj`
 
 Hand-maintained `.xcodeproj` files are XML/plist based, are fragile to merge conflicts, and drift out of sync with the file system easily, especially when a project is edited outside Xcode. Instead, `project.yml` declares the target, sources, and settings; both CI and your local machine run `xcodegen generate` to produce a fresh, correct `.xcodeproj` every time. The generated project is gitignored.
 
@@ -90,10 +90,6 @@ Because responses are XML, `APIClient.swift` includes a small dependency-free `X
 4. Save. No other code changes are required; every request in `APIClient` reads from `APIConfig.key`.
 
 If you build or run without replacing the placeholder, the app will surface a clear "No TheBus API key is configured" error instead of making a doomed network request.
-
-### Attribution requirement
-
-TheBus's Terms of Use require any app displaying their data to show the legend "Route and arrival data provided by permission of Oahu Transit Services, Inc." This is already included as `APIConfig.attributionText` and shown in Home, Route, and Settings screens. Keep it if you fork this project.
 
 ## Building locally with Xcode
 
@@ -132,7 +128,7 @@ This `.ipa` is **unsigned**. That's intentional: CI has no access to your Apple 
 
 ## Installing via SideStore
 
-SideStore signs and installs apps using your own free or paid Apple Developer account, refreshing the signature periodically (roughly every 7 days for a free account) similarly to AltStore.
+SideStore signs and installs apps using your own free or paid Apple Developer account, refreshing the signature periodically (roughly every 7 days for a free account).
 
 1. Install SideStore on your iPhone/iPad following SideStore's own setup guide (https://sidestore.io), including pairing it with SideServer/AltServer on a companion computer, which is required for the initial install and periodic re-signing.
 2. Download `TheBusLive-unsigned-ipa` from the GitHub Actions run (see above) and unzip it if needed so you have a `.ipa` file, or keep it zipped, either works with SideStore's import.
@@ -141,10 +137,12 @@ SideStore signs and installs apps using your own free or paid Apple Developer ac
 5. SideStore will sign the app with your Apple ID's development certificate and install it, prompting you to trust the developer profile in Settings → General → VPN & Device Management if this is the first app signed with that certificate.
 6. Launch TheBus Live from the home screen.
 
-## Known limitations / next steps
-- Vehicle tracking polls every 30 seconds while the map is open; TheBus's own AVL data is refreshed roughly once a minute, so this has headroom without over-polling.
-
 ## Notes
 If you encounter issues, open an issue: [issue](https://github.com/ashvr0/app/issues/new).
 
 This project is licensed under the **GPL** see the [LICENSE](https://github.com/ashvr0/app?tab=GPL-3.0-1-ov-file) file for details.
+
+- Vehicle tracking polls every 30 seconds while the map is open; TheBus's own AVL data is refreshed roughly once a minute, so this has headroom without over-polling.
+## Attribution requirement
+
+TheBus's Terms of Use require any app displaying their data to show the legend "Route and arrival data provided by permission of Oahu Transit Services, Inc." This is already included as `APIConfig.attributionText` and shown in Home, Route, and Settings screens. Keep it if you fork this project.

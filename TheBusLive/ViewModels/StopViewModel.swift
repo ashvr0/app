@@ -13,6 +13,9 @@ final class StopViewModel: ObservableObject {
 
     @Published private(set) var arrivals: [Arrival] = []
     @Published private(set) var state: LoadState = .idle
+    /// When arrivals were last successfully fetched, used to show a
+    /// "Last refresh: h:mm a" subtitle under the stop name.
+    @Published private(set) var lastRefreshed: Date?
 
     let stop: Stop
     private let client: APIClient
@@ -46,6 +49,7 @@ final class StopViewModel: ObservableObject {
 
             arrivals = sorted
             state = sorted.isEmpty ? .empty : .loaded
+            lastRefreshed = Date()
         } catch let error as APIError {
             state = .failed(error.localizedDescription)
         } catch {

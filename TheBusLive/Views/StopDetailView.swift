@@ -12,6 +12,21 @@ struct StopDetailView: View {
         _viewModel = StateObject(wrappedValue: StopViewModel(stop: stop))
     }
 
+    /// Shows the stop number by default ("Stop 169"), switching to a
+    /// "Last refresh: h:mm a" line once arrivals have loaded at least
+    /// once. Uses the device's current locale so the time renders in
+    /// whatever 12h/24h format the user's system is set to, rather than
+    /// a hardcoded format.
+    private var refreshSubtitle: String {
+        guard let lastRefreshed = viewModel.lastRefreshed else {
+            return "Stop \(stop.stopID)"
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale.autoupdatingCurrent
+        formatter.setLocalizedDateFormatFromTemplate("jm")
+        return "Last refresh: \(formatter.string(from: lastRefreshed))"
+    }
+
     var body: some View {
         Group {
             switch viewModel.state {
@@ -54,8 +69,13 @@ struct StopDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .principal) {
-                MarqueeText(text: stop.name, font: .headline)
-                    .frame(width: 220)
+                VStack(spacing: 0) {
+                    MarqueeText(text: stop.name, font: .headline)
+                        .frame(width: 220)
+                    Text(refreshSubtitle)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 // Note: toggleFavorite itself fires a success/warning
