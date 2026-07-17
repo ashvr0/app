@@ -110,7 +110,7 @@ Then select the `TheBusLive` scheme and a simulator or device, and build/run as 
 
 ## Building via GitHub Actions
 
-The workflow at `.github/workflows/ios-build.yml` runs on `macos-14` runners and:
+The workflow at `.github/workflows/ios-build.yml` runs on `macos-26` runners and:
 
 1. Selects Xcode 26
 2. Installs XcodeGen via Homebrew
@@ -141,14 +141,10 @@ SideStore signs and installs apps using your own free or paid Apple Developer ac
 5. SideStore will sign the app with your Apple ID's development certificate and install it, prompting you to trust the developer profile in Settings → General → VPN & Device Management if this is the first app signed with that certificate.
 6. Launch TheBus Live from the home screen.
 
-Notes:
-
-- Free Apple Developer accounts limit you to a small number of active app IDs and require re-signing roughly every 7 days; SideStore automates this refresh while your device is on the same network as SideServer, or via its background refresh features.
-- If SideStore reports a signing or entitlement error, confirm you generated the `.ipa` from the `Release` configuration artifact and that `CODE_SIGNING_ALLOWED`/`CODE_SIGNING_REQUIRED` were `NO` during the CI build (both are set in `project.yml` and the workflow), since a partially-signed archive can confuse resigning tools.
-- If you'd rather sign locally instead of via SideStore's own resigning: install `ideviceinstaller` or use Xcode's own "Devices and Simulators" window to drag-install a version you've re-signed with `codesign`/`fastlane sigh`, then let SideStore manage refresh from there.
-
 ## Known limitations / next steps
-
-- Stop search uses a small bundled sample list rather than TheBus's full stop dataset; swap in a bundled GTFS-derived JSON file for full coverage.
-- The XML parser is intentionally minimal; it assumes TheBus's documented schema and does not validate against a DTD.
 - Vehicle tracking polls every 30 seconds while the map is open; TheBus's own AVL data is refreshed roughly once a minute, so this has headroom without over-polling.
+
+## Notes
+If you encounter issues, open an issue: [issue](https://github.com/ashvr0/app/issues/new).
+
+This project is licensed under the **GPL** see the [LICENSE](https://github.com/ashvr0/app?tab=GPL-3.0-1-ov-file) file for details.

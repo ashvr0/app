@@ -1,7 +1,6 @@
 import Foundation
 
 /// Builds request URLs for TheBus's public Web API.
-///
 /// All of TheBus's endpoints are read only, use HTTP GET, and return XML.
 /// Each case here maps to one documented service at
 /// https://hea.thebus.org/api_info.asp.

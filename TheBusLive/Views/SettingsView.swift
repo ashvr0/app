@@ -9,6 +9,7 @@ struct SettingsView: View {
     @AppStorage(AppPreferenceKeys.debugModeEnabled) private var debugModeEnabled: Bool = false
     @AppStorage(AppPreferenceKeys.hapticsEnabled) private var hapticsEnabled: Bool = true
     @State private var showingClearRecentsConfirmation = false
+    @State private var showingPrivacyDetails = false
 
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -93,8 +94,20 @@ struct SettingsView: View {
                     Link(destination: URL(string: "https://www.gnu.org/licenses/gpl-3.0.html")!) {
                         Label("Free forever, GPLv3 licensed", systemImage: "checkmark.seal")
                     }
-                    Label("No data collected", systemImage: "hand.raised")
-                        .foregroundStyle(.secondary)
+                    Button {
+                        showingPrivacyDetails = true
+                    } label: {
+                        HStack {
+                            Label("No data collected", systemImage: "hand.raised")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Section {
@@ -125,6 +138,89 @@ struct SettingsView: View {
                     favoritesManager.clearRecents()
                 }
                 Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showingPrivacyDetails) {
+                PrivacyDetailsView()
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
+    }
+}
+
+/// A short, plain-language explanation of the app's data practices,
+/// shown from the "No data collected" row in Settings. Kept as a
+/// dedicated view (rather than an alert) since alerts truncate long
+/// text and don't scroll well.
+private struct PrivacyDetailsView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    private struct Point: Identifiable {
+        let id = UUID()
+        let systemImage: String
+        let title: String
+        let detail: String
+    }
+
+    private let points: [Point] = [
+        Point(
+            systemImage: "hand.raised.fill",
+            title: "No data collected",
+            detail: "This app doesn't collect, log, or transmit any analytics, usage data, or personal information about you."
+        ),
+        Point(
+            systemImage: "iphone",
+            title: "Everything stays on your device",
+            detail: "Favorites and recently viewed stops are stored locally on your device only, using standard iOS storage. They're never uploaded anywhere."
+        ),
+        Point(
+            systemImage: "person.2.slash",
+            title: "No third parties",
+            detail: "There are no third-party analytics SDKs, ad networks, or trackers built into this app."
+        ),
+        Point(
+            systemImage: "network",
+            title: "Network requests",
+            detail: "The only network calls this app makes are directly to TheBus's official Web API (api.thebus.org), to fetch live arrivals, routes, and vehicle positions. No request is routed through any other server."
+        )
+    ]
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(points) { point in
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: point.systemImage)
+                                .font(.system(size: 18))
+                                .foregroundStyle(Color.accentColor)
+                                .frame(width: 24)
+                                .padding(.top, 2)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(point.title)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text(point.detail)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                Section {
+                    Text("Our promise: this will always be a free, open source app with no ads and no data collection. If that ever changes, it'll be called out clearly here, not buried in fine print.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Privacy")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
             }
         }
     }

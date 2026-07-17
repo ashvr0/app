@@ -2,30 +2,29 @@ import SwiftUI
 import MapKit
 
 /// A curated set of accent colors the user can pick from in Settings.
-/// Stored as a raw string so it round-trips cleanly through
-/// `@AppStorage`.
+/// Stored as a raw string so it round-trips cleanly through `@AppStorage`.
 enum AppAccentColor: String, CaseIterable, Identifiable {
     case blue
-    case orange
-    case green
     case purple
-    case red
-    case teal
     case pink
+    case red
+    case orange
     case yellow
+    case green
+    case teal
 
     var id: String { rawValue }
 
     var color: Color {
         switch self {
         case .blue: return .blue
-        case .orange: return .orange
-        case .green: return .green
         case .purple: return .purple
-        case .red: return .red
-        case .teal: return .teal
         case .pink: return .pink
+        case .red: return .red
+        case .orange: return .orange
         case .yellow: return .yellow
+        case .green: return .green
+        case .teal: return .teal
         }
     }
 

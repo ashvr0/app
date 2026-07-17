@@ -4,7 +4,6 @@ import CoreLocation
 /// Road-following polylines for a route, bundled from TheBus's GTFS
 /// `shapes.txt` (see `Scripts/generate_shapes_json.py`), keyed by route
 /// short name to match what the live Route API returns as `routeNum`.
-///
 /// A route can have more than one shape (for example, one per direction
 /// or branch), so lookups return an array of polylines rather than one.
 enum RouteShapes {

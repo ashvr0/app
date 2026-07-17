@@ -2,7 +2,6 @@ import Foundation
 import CoreLocation
 
 /// Represents a single TheBus stop.
-///
 /// TheBus's official API does not expose a stop search endpoint, so stop
 /// metadata (name, coordinates) is expected to be seeded from a bundled
 /// stops list (for example, an exported copy of TheBus's public GTFS
