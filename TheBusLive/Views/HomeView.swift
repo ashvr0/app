@@ -1,7 +1,9 @@
 import SwiftUI
 import MapKit
 
-struct AllStopsMapView: View {
+struct HomeView: View {
+
+    @EnvironmentObject private var favoritesManager: FavoritesManager
 
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
@@ -12,10 +14,8 @@ struct AllStopsMapView: View {
     @State private var visibleRegion: MKCoordinateRegion?
     @State private var selectedStop: Stop?
 
-    @EnvironmentObject private var favoritesManager: FavoritesManager
-
     private var visibleStops: [Stop] {
-        guard let region = visibleRegion else { return [] }
+        guard let region = visibleRegion, region.span.latitudeDelta < 0.12 else { return [] }
 
         let latDelta = region.span.latitudeDelta / 2
         let lonDelta = region.span.longitudeDelta / 2
@@ -24,8 +24,6 @@ struct AllStopsMapView: View {
         let minLon = region.center.longitude - lonDelta
         let maxLon = region.center.longitude + lonDelta
 
-        guard region.span.latitudeDelta < 0.12 else { return [] }
-
         return Stop.allStops.filter {
             $0.latitude >= minLat && $0.latitude <= maxLat &&
             $0.longitude >= minLon && $0.longitude <= maxLon
@@ -33,69 +31,101 @@ struct AllStopsMapView: View {
     }
 
     var body: some View {
-        Map(position: $cameraPosition) {
-            ForEach(visibleStops) { stop in
-                Annotation(stop.name, coordinate: stop.coordinate) {
-                    Button {
-                        selectedStop = stop
-                    } label: {
-                        StopPin(stop: stop, isFavorite: favoritesManager.isFavorite(stop))
+        NavigationStack {
+            List {
+                Section {
+                    mapPreview
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                }
+
+                if !favoritesManager.favorites.isEmpty {
+                    Section("Favorite stops") {
+                        ForEach(favoritesManager.favorites) { stop in
+                            NavigationLink(value: stop) {
+                                StopRow(stop: stop)
+                            }
+                        }
                     }
                 }
+
+                if !favoritesManager.recents.isEmpty {
+                    Section("Recently viewed") {
+                        ForEach(favoritesManager.recents) { stop in
+                            NavigationLink(value: stop) {
+                                StopRow(stop: stop)
+                            }
+                        }
+                    }
+                }
+
+                if favoritesManager.favorites.isEmpty && favoritesManager.recents.isEmpty {
+                    Section {
+                        StatusView(kind: .empty(
+                            title: "No stops yet",
+                            message: "Search for a stop to see live arrivals, or add stops to your favorites.",
+                            systemImage: "bus.fill"
+                        ))
+                        .listRowSeparator(.hidden)
+                        .frame(minHeight: 260)
+                    }
+                }
+
+                Section {
+                    Text(APIConfig.attributionText)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
-        }
-        .mapControls {
-            MapCompass()
-            MapScaleView()
-            MapUserLocationButton()
-        }
-        .onMapCameraChange { context in
-            visibleRegion = context.region
-        }
-        .overlay(alignment: .top) {
-            if visibleRegion == nil || visibleRegion!.span.latitudeDelta >= 0.12 {
-                Text("Zoom in to see stop pins")
-                    .font(.caption)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .glassBackground(in: Capsule())
-                    .padding(.top, 8)
-            }
-        }
-        .navigationTitle("All Stops")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $selectedStop) { stop in
-            NavigationStack {
+            .navigationTitle("TheBus Live")
+            .navigationDestination(for: Stop.self) { stop in
                 StopDetailView(stop: stop)
             }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
+            .sheet(item: $selectedStop) { stop in
+                NavigationStack {
+                    StopDetailView(stop: stop)
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+            }
         }
     }
-}
 
-private struct StopPin: View {
-    let stop: Stop
-    let isFavorite: Bool
+    private var mapPreview: some View {
+        NavigationLink {
+            AllStopsMapView()
+        } label: {
+            ZStack(alignment: .bottomTrailing) {
+                Map(position: $cameraPosition, interactionModes: [.pan, .zoom]) {
+                    ForEach(visibleStops) { stop in
+                        Annotation(stop.name, coordinate: stop.coordinate) {
+                            Image(systemName: favoritesManager.isFavorite(stop) ? "star.circle.fill" : "mappin.circle.fill")
+                                .font(.system(size: 16))
+                                .foregroundStyle(favoritesManager.isFavorite(stop) ? .yellow : Color.accentColor)
+                                .background(Circle().fill(.white).frame(width: 12, height: 12))
+                        }
+                    }
+                }
+                .onMapCameraChange { context in
+                    visibleRegion = context.region
+                }
+                .allowsHitTesting(false)
+                .frame(height: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
 
-    var body: some View {
-        VStack(spacing: 2) {
-            Text(stop.stopID)
-                .font(.caption2.bold())
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .glassBackground(in: Capsule())
-            Image(systemName: isFavorite ? "star.circle.fill" : "mappin.circle.fill")
-                .font(.system(size: 20))
-                .foregroundStyle(isFavorite ? .yellow : Color.accentColor)
-                .background(Circle().fill(.white).frame(width: 16, height: 16))
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.caption)
+                    .padding(8)
+                    .glassBackground(in: Circle())
+                    .padding(10)
+            }
         }
+        .buttonStyle(.plain)
+        .padding(.vertical, 8)
     }
 }
 
 #Preview {
-    NavigationStack {
-        AllStopsMapView()
-            .environmentObject(FavoritesManager())
-    }
+    HomeView()
+        .environmentObject(FavoritesManager())
 }
