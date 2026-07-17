@@ -13,10 +13,18 @@ struct MapView: View {
     }
 
     /// Stops along the vehicle's current route, so riders can see where
-    /// the bus is headed next, not just its current position.
+    /// the bus is headed next, not just its current position. Matching is
+    /// done case-/whitespace-insensitively since the route short name on
+    /// a vehicle and on a stop don't always come from the API in exactly
+    /// the same format (e.g. "8" vs "08", or trailing whitespace).
     private var routeStops: [Stop] {
         guard let routeShortName = viewModel.vehicles.first?.routeShortName else { return [] }
-        return Stop.allStops.filter { $0.routeShortNames.contains(routeShortName) }
+        let target = routeShortName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return Stop.allStops.filter { stop in
+            stop.routeShortNames.contains { candidate in
+                candidate.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == target
+            }
+        }
     }
 
     /// The stop nearest to the vehicle's current position, used to

@@ -41,10 +41,7 @@ struct ArrivalRow: View {
                         .foregroundStyle(Color.accentColor)
                 }
 
-                Text(arrival.headsign)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
+                MarqueeText(text: arrival.headsign, font: .subheadline, fontWeight: .medium)
 
                 HStack(spacing: 6) {
                     if arrival.isCanceled {
