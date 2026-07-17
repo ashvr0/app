@@ -11,7 +11,7 @@ struct SettingsView: View {
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
     }
-
+ // Changes apperance
     var body: some View {
         NavigationStack {
             Form {
@@ -22,7 +22,7 @@ struct SettingsView: View {
                         Text("Dark").tag("dark")
                     }
                 }
-
+                // delte recent stops
                 Section("Data") {
                     Button(role: .destructive) {
                         showingClearRecentsConfirmation = true
@@ -30,7 +30,7 @@ struct SettingsView: View {
                         Label("Clear recent stops", systemImage: "clock.arrow.circlepath")
                     }
                 }
-
+                // About section
                 Section("About") {
                     LabeledContent("Version", value: appVersion)
                     Link(destination: URL(string: "https://hea.thebus.org/api_info.asp")!) {
@@ -39,6 +39,14 @@ struct SettingsView: View {
                     Link(destination: URL(string: "https://www.thebus.org")!) {
                         Label("TheBus website", systemImage: "safari")
                     }
+                    Link(destination: URL(string: "https://github.com/ashvr0")!) {
+                        Label("Made by ashvr0", systemImage: "chevron.left.forwardslash.chevron.right")
+                    }
+                    Link(destination: URL(string: "https://www.gnu.org/licenses/gpl-3.0.html")!) {
+                        Label("Free forever, GPLv3 licensed", systemImage: "checkmark.seal")
+                    }
+                    Label("No data collected", systemImage: "hand.raised")
+                        .foregroundStyle(.secondary)
                 }
 
                 Section {

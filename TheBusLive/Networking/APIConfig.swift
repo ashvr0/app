@@ -2,9 +2,6 @@ import Foundation
 
 /// Central place for TheBus API configuration.
 ///
-/// Replace `key` with your own AppID obtained by registering at
-/// https://hea.thebus.org/api_info.asp before building. See the setup
-/// instructions in the project README for details.
 enum APIConfig {
     /// TheBus API application id (AppID). Replace this placeholder with
     /// your registered key.

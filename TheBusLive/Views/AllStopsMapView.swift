@@ -14,6 +14,9 @@ struct AllStopsMapView: View {
 
     @EnvironmentObject private var favoritesManager: FavoritesManager
 
+    /// Only render stops inside the current visible region, and only
+    /// once zoomed in enough, so the map doesn't try to place
+    /// thousands of pins at once.
     private var visibleStops: [Stop] {
         guard let region = visibleRegion else { return [] }
 
