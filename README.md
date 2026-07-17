@@ -4,13 +4,19 @@ A modern, unofficial SwiftUI replacement for the old TheBus iOS app, built on to
 
 This app is not affiliated with or endorsed by Oahu Transit Services, Inc. Route and arrival data is provided by permission of Oahu Transit Services, Inc, per the terms at https://hea.thebus.org/api_info.asp.
 
+<p align="center">
+  <img src="./Assets/MockUp.png" width="550" alt="TheBus Live app walkthrough: Home, Stop arrivals, Vehicle tracking">
+</p>
+
 ## What's included
 
-- SwiftUI app built for iOS 17+, built with MVVM.
+- SwiftUI app built for iOS 17+, built with MVVM architecture. 
 - Live arrivals, stop and route search, route details, vehicle tracking on a MapKit map.
-- Favorites and recently viewed stops, persisted locally.
+- Stop and route search, with full island-wide coverage via bundled GTFS data.
+- Route details with polyline maps from GTFS `shapes.txt`.
+- Favorites and recently viewed stops, persisted locally via UserDefaults.
 - Pull to refresh, loading/empty/error states throughout.
-- A settings page with a light/dark/system appearance toggle.
+- Light/dark/system appearance toggle, accent color picker, haptics toggle.
 - A GitHub Actions workflow that builds the project on macOS runners, since the project is authored on Linux/Windows.
 - No third party dependencies: networking uses `URLSession` and `XMLParser`, both part of Foundation.
 
@@ -24,34 +30,41 @@ TheBusLive/
 │   ├── Info.plist
 │   ├── Assets.xcassets/
 │   ├── Models/
-│   │   ├── Stop.swift
-│   │   ├── Route.swift
-│   │   ├── Arrival.swift
-│   │   └── Vehicle.swift
+│   │   ├── Stop.swift           GTFS stop data with coordinates
+│   │   ├── Route.swift          Route metadata from API
+│   │   ├── Arrival.swift        Predicted/scheduled arrivals
+│   │   ├── Vehicle.swift        Live vehicle position and status
+│   │   ├── RouteShapes.swift    Polylines from GTFS shapes.txt
+│   │   └── AppPreferences.swift Theme, color, debug toggles
 │   ├── Networking/
-│   │   ├── APIClient.swift
-│   │   ├── APIConfig.swift
-│   │   ├── Endpoints.swift
-│   │   └── APIError.swift
+│   │   ├── APIClient.swift      Actor-based networking, XML parsing
+│   │   ├── APIConfig.swift      API key and constants
+│   │   ├── Endpoints.swift      Request URL building
+│   │   └── APIError.swift       Error types with cancellation detection
 │   ├── ViewModels/
-│   │   ├── StopViewModel.swift
-│   │   ├── RouteViewModel.swift
-│   │   └── VehicleMapViewModel.swift
+│   │   ├── StopViewModel.swift  Fetches and sorts arrivals
+│   │   ├── RouteViewModel.swift Route search and lookup
+│   │   └── VehicleMapViewModel.swift Auto-refreshing vehicle tracking
 │   ├── Views/
-│   │   ├── ContentView.swift
-│   │   ├── HomeView.swift
-│   │   ├── SearchView.swift
-│   │   ├── StopDetailView.swift
-│   │   ├── RouteView.swift
-│   │   ├── MapView.swift
-│   │   ├── FavoritesView.swift
-│   │   ├── SettingsView.swift
-│   │   ├── StatusView.swift
-│   │   ├── ArrivalRow.swift
-│   │   └── StopRow.swift
+│   │   ├── ContentView.swift    Tab bar root
+│   │   ├── HomeView.swift       Favorites, recents, map preview
+│   │   ├── SearchView.swift     Stop and route search
+│   │   ├── StopDetailView.swift Live arrivals list
+│   │   ├── RouteView.swift      Route details with polyline
+│   │   ├── MapView.swift        Vehicle tracking map
+│   │   ├── AllStopsMapView.swift Island-wide stops with smart thinning
+│   │   ├── FavoritesView.swift  Drag-to-reorder starred stops
+│   │   ├── SettingsView.swift   Appearance, haptics, debug, privacy
+│   │   ├── ArrivalRow.swift     Single arrival display
+│   │   ├── StopRow.swift        Stop list item
+│   │   ├── StatusView.swift     Loading/empty/error placeholder
+│   │   ├── MarqueeText.swift    Auto-scrolling text for long labels
+│   │   ├── HapticsManager.swift Centralized haptic feedback
+│   │   ├── GlassCompat.swift    iOS 26 Liquid Glass backcompat
+│   │   └── MapView.swift        Map controls and styling
 │   └── Storage/
-│       └── FavoritesManager.swift
-└── .github/workflows/ios-build.yml
+│       └── FavoritesManager.swift Favorites/recents persistence
+└── .github/workflows/ios-build.yml CI/CD
 ```
 
 ### Why XcodeGen instead of a committed? `.xcodeproj`
