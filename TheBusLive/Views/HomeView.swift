@@ -112,6 +112,7 @@ struct HomeView: View {
     /// on tap, where pins ARE individually tappable.
     private var mapPreview: some View {
         Button {
+            HapticsManager.shared.light()
             showingAllStopsMap = true
         } label: {
             Map(position: $cameraPosition, interactionModes: []) {
@@ -132,8 +133,10 @@ struct HomeView: View {
             .frame(height: 200)
             .frame(maxWidth: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: 16))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }
