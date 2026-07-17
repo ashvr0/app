@@ -40,7 +40,7 @@ struct StopDetailView: View {
             }
         }
         .navigationTitle(stop.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .navigationDestination(for: Arrival.self) { arrival in
             if let vehicleNumber = arrival.vehicle, !vehicleNumber.isEmpty {
                 MapView(vehicleNumber: vehicleNumber)

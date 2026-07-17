@@ -29,8 +29,20 @@ final class VehicleMapViewModel: ObservableObject {
         self.client = client
     }
 
-    func loadVehicle(number: String) async {
-        state = .loading
+    /// Only recenter the camera automatically on the very first load for
+    /// a given tracking session, so the map doesn't keep yanking the
+    /// user's view back to the vehicle every refresh if they've panned
+    /// around to look at nearby streets.
+    private var hasCenteredCamera = false
+
+    func loadVehicle(number: String, animateMovement: Bool = true) async {
+        // Only show the full-screen loading state on the very first
+        // fetch; subsequent polls should update quietly in the
+        // background so the bus visibly glides to its new spot instead
+        // of flashing a loading spinner every 15 seconds.
+        if vehicles.isEmpty {
+            state = .loading
+        }
         do {
             let response = try await client.fetchVehicle(number: number)
 
@@ -41,16 +53,26 @@ final class VehicleMapViewModel: ObservableObject {
             }
 
             let results = response.vehicle ?? []
-            vehicles = results
             state = results.isEmpty ? .empty : .loaded
 
-            if let first = results.first {
-                cameraPosition = .region(
-                    MKCoordinateRegion(
-                        center: first.coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+            if animateMovement {
+                withAnimation(.linear(duration: 1.0)) {
+                    vehicles = results
+                }
+            } else {
+                vehicles = results
+            }
+
+            if let first = results.first, !hasCenteredCamera {
+                hasCenteredCamera = true
+                withAnimation {
+                    cameraPosition = .region(
+                        MKCoordinateRegion(
+                            center: first.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                        )
                     )
-                )
+                }
             }
         } catch let error as APIError {
             state = .failed(error.localizedDescription)
@@ -59,14 +81,18 @@ final class VehicleMapViewModel: ObservableObject {
         }
     }
 
-    /// Polls a vehicle's position every 30 seconds, matching TheBus's own
-    /// approximately one minute AVL refresh interval with headroom.
+    /// Polls a vehicle's position every 15 seconds for a more responsive,
+    /// smoothly-animated view of where the bus actually is. TheBus's AVL
+    /// feed itself may not update faster than ~30-60s, but polling more
+    /// often means we pick up a fresh position sooner after it posts,
+    /// rather than waiting up to 30s beyond that.
     func startAutoRefresh(number: String) {
         stopAutoRefresh()
+        hasCenteredCamera = false
         refreshTask = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.loadVehicle(number: number)
-                try? await Task.sleep(nanoseconds: 30_000_000_000)
+                try? await Task.sleep(nanoseconds: 15_000_000_000)
             }
         }
     }

@@ -12,14 +12,23 @@ struct AllStopsMapView: View {
     @State private var visibleRegion: MKCoordinateRegion?
     @State private var selectedStop: Stop?
 
+    /// The stops actually rendered on the map. Recomputed only after the
+    /// camera settles (see `regionUpdateTask`), rather than on every
+    /// intermediate frame of a pinch/pan gesture, which is what was
+    /// causing the lag when zooming.
+    @State private var visibleStops: [Stop] = []
+    @State private var regionUpdateTask: Task<Void, Never>?
+
     @EnvironmentObject private var favoritesManager: FavoritesManager
 
-    /// Only render stops inside the current visible region, and only
-    /// once zoomed in enough, so the map doesn't try to place
-    /// thousands of pins at once.
-    private var visibleStops: [Stop] {
-        guard let region = visibleRegion else { return [] }
+    private var isZoomedInEnough: Bool {
+        guard let region = visibleRegion else { return false }
+        return region.span.latitudeDelta < 0.12
+    }
 
+    /// Filters stops for a given region. Run off the main actor so large
+    /// stop lists don't block scrolling/zooming.
+    nonisolated private func computeVisibleStops(for region: MKCoordinateRegion, allStops: [Stop]) -> [Stop] {
         let latDelta = region.span.latitudeDelta / 2
         let lonDelta = region.span.longitudeDelta / 2
         let minLat = region.center.latitude - latDelta
@@ -29,9 +38,26 @@ struct AllStopsMapView: View {
 
         guard region.span.latitudeDelta < 0.12 else { return [] }
 
-        return Stop.allStops.filter {
+        return allStops.filter {
             $0.latitude >= minLat && $0.latitude <= maxLat &&
             $0.longitude >= minLon && $0.longitude <= maxLon
+        }
+    }
+
+    /// Debounces rapid camera-change callbacks (fired continuously during
+    /// pinch-zoom) so we only recompute + re-render pins once movement
+    /// pauses briefly, instead of on every single frame.
+    private func scheduleVisibleStopsUpdate(for region: MKCoordinateRegion) {
+        regionUpdateTask?.cancel()
+        let allStops = Stop.allStops
+        regionUpdateTask = Task {
+            try? await Task.sleep(nanoseconds: 120_000_000) // ~0.12s debounce
+            guard !Task.isCancelled else { return }
+            let filtered = computeVisibleStops(for: region, allStops: allStops)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                visibleStops = filtered
+            }
         }
     }
 
@@ -52,17 +78,31 @@ struct AllStopsMapView: View {
             MapScaleView()
             MapUserLocationButton()
         }
-        .onMapCameraChange { context in
+        .onMapCameraChange(frequency: .continuous) { context in
+            // Keep visibleRegion live so the "zoom in" overlay reacts
+            // immediately, but debounce the (potentially expensive)
+            // stop filtering separately below.
             visibleRegion = context.region
         }
+        .onMapCameraChange(frequency: .onEnd) { context in
+            scheduleVisibleStopsUpdate(for: context.region)
+        }
         .overlay(alignment: .top) {
-            if visibleRegion == nil || visibleRegion!.span.latitudeDelta >= 0.12 {
+            if !isZoomedInEnough {
                 Text("Zoom in to see stop pins")
                     .font(.caption)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .glassBackground(in: Capsule())
                     .padding(.top, 8)
+            }
+        }
+        .onAppear {
+            if let region = visibleRegion {
+                scheduleVisibleStopsUpdate(for: region)
+            } else if case let .region(region) = cameraPosition {
+                visibleRegion = region
+                scheduleVisibleStopsUpdate(for: region)
             }
         }
         .navigationTitle("All Stops")

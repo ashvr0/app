@@ -5,6 +5,21 @@ import SwiftUI
 struct ArrivalRow: View {
     let arrival: Arrival
 
+    /// Minutes from now until the predicted/scheduled arrival, if a date
+    /// is available on the arrival. Negative or zero minutes are treated
+    /// as "Due" rather than showing a negative countdown.
+    private var minutesUntilArrival: Int? {
+        guard let date = arrival.arrivalDate else { return nil }
+        let minutes = Int(date.timeIntervalSinceNow / 60)
+        return minutes
+    }
+
+    private var countdownText: String? {
+        guard let minutes = minutesUntilArrival else { return nil }
+        if minutes <= 0 { return "Due" }
+        return "\(minutes) min"
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
@@ -13,10 +28,19 @@ struct ArrivalRow: View {
                     .frame(width: 44, height: 44)
                 Text(arrival.route)
                     .font(.headline)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
                     .foregroundStyle(Color.accentColor)
             }
 
             VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text("Bus \(arrival.route)")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.accentColor)
+                }
+
                 Text(arrival.headsign)
                     .font(.subheadline)
                     .fontWeight(.medium)
@@ -47,11 +71,19 @@ struct ArrivalRow: View {
 
             Spacer()
 
-            Text(arrival.stopTime)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(arrival.isCanceled ? .secondary : .primary)
-                .strikethrough(arrival.isCanceled)
+            VStack(alignment: .trailing, spacing: 2) {
+                if let countdownText, !arrival.isCanceled {
+                    Text(countdownText)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
+                }
+                Text(arrival.stopTime)
+                    .font(countdownText != nil && !arrival.isCanceled ? .caption : .subheadline)
+                    .fontWeight(countdownText != nil && !arrival.isCanceled ? .regular : .semibold)
+                    .foregroundStyle(arrival.isCanceled ? .secondary : (countdownText != nil ? .secondary : .primary))
+                    .strikethrough(arrival.isCanceled)
+            }
         }
         .padding(.vertical, 4)
     }

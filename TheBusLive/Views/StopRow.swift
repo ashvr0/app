@@ -17,7 +17,8 @@ struct StopRow: View {
                 Text(stop.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text("Stop \(stop.stopID)" + (stop.routeShortNames.isEmpty ? "" : " · Routes \(stop.routeShortNames.joined(separator: ", "))"))
                     .font(.caption)

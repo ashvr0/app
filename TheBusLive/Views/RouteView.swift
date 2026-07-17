@@ -26,12 +26,31 @@ struct RouteView: View {
 
             Section("Route") {
                 LabeledContent("Number", value: route.routeNum)
+
                 if let headsign = route.headsign, !headsign.isEmpty {
-                    LabeledContent("Headsign", value: headsign)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Headsign")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text(headsign)
+                            .font(.body)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.vertical, 2)
                 }
+
                 if let firstStop = route.firstStop, !firstStop.isEmpty {
-                    LabeledContent("Start / end", value: firstStop)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Start / end")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Text(firstStop)
+                            .font(.body)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.vertical, 2)
                 }
+
                 if let shapeID = route.shapeID, !shapeID.isEmpty {
                     LabeledContent("Shape ID", value: shapeID)
                 }
