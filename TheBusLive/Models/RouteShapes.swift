@@ -1,11 +1,8 @@
 import Foundation
 import CoreLocation
 
-/// Road-following polylines for a route, bundled from TheBus's GTFS
-/// `shapes.txt` (see `Scripts/generate_shapes_json.py`), keyed by route
-/// short name to match what the live Route API returns as `routeNum`.
-/// A route can have more than one shape (for example, one per direction
-/// or branch), so lookups return an array of polylines rather than one.
+/// Road following polylines for each route, loaded from the bundled
+/// Keyed by route short name and containing one or more polylines for each route.
 enum RouteShapes {
 
     /// route short name -> array of polylines, each an array of coordinates.
@@ -30,8 +27,8 @@ enum RouteShapes {
         return result
     }()
 
-    /// Returns the bundled polyline(s) for a route short name (for
-    /// example "8" or "A LINE"), or an empty array if none are bundled.
+    /// Returns the bundled polyline(s) for a route short name,
+    /// such as "8" or "A LINE". Returns an empty array if none exist.
     static func polylines(forRouteShortName routeShortName: String) -> [[CLLocationCoordinate2D]] {
         byRoute[routeShortName] ?? []
     }

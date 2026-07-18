@@ -12,7 +12,7 @@ struct HomeView: View {
 
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 21.3069, longitude: -157.8583),
+            center: CLLocationCoordinate2D(latitude: 21.3000, longitude: -157.8500),
             span: MKCoordinateSpan(latitudeDelta: 0.35, longitudeDelta: 0.35)
         )
     )
@@ -101,15 +101,10 @@ struct HomeView: View {
         }
     }
 
-    /// Uses a plain `Button` with programmatic navigation rather than a
-    /// `NavigationLink`, since a `NavigationLink` used as a List row
-    /// automatically draws a trailing disclosure chevron ("›") over the
-    /// map preview. Interaction modes are set to `[]` (not just
-    /// `.allowsHitTesting(false)`) because `Map` installs its own pan/
-    /// zoom gesture recognizers that intercept taps before SwiftUI's
-    /// hit-testing modifier ever sees them, which is why the button
-    /// wasn't opening `AllStopsMapView`. The whole card navigates there
-    /// on tap, where pins ARE individually tappable.
+    /// Uses a plain `Button` with programmatic navigation instead of
+    /// `NavigationLink` to avoid the List row chevron over the map preview.
+    /// Map interaction modes are disabled so the full card tap opens
+    /// `AllStopsMapView`, where pins remain individually tappable.
     private var mapPreview: some View {
         Button {
             HapticsManager.shared.light()

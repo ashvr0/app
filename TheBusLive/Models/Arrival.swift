@@ -29,8 +29,7 @@ struct Arrival: Identifiable, Codable, Hashable {
     }
 
     /// Parses `stopTime` (and `date`, when present) into a `Date` for
-    /// display and sorting. TheBus returns local Honolulu time strings
-    /// such as "3:45 PM".
+    /// display and sorting. TheBus returns local Honolulu time strings.
     var arrivalDate: Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

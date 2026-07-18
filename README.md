@@ -5,7 +5,7 @@ A modern, unofficial SwiftUI replacement for the old TheBus iOS app, built on to
 This app is not affiliated with or endorsed by Oahu Transit Services, Inc. Route and arrival data is provided by permission of Oahu Transit Services, Inc, per the terms at https://hea.thebus.org/api_info.asp.
 
 <p align="center">
-  <img src="./Assets/MockUp.png" width="550" alt="TheBus Live app walkthrough: Home, Stop arrivals, Vehicle tracking">
+  <img src="./Assets/MockUp.png" width="950" alt="TheBus Live app walkthrough: Home, Stop arrivals, Vehicle tracking">
 </p>
 
 ## What's included

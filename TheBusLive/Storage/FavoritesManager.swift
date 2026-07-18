@@ -2,10 +2,7 @@ import Foundation
 import Combine
 
 /// Persists favorite and recently-viewed stops locally via UserDefaults.
-/// Reconstructed from usage sites (`FavoritesView`, `HomeView`,
-/// `SearchView`, `StopDetailView`); replace with the original file if
-/// you have one; the storage keys below only matter if you need to
-/// match existing on-device data exactly.
+/// the storage keysw below only matter if you need to match existing on-device data exactly.
 @MainActor
 final class FavoritesManager: ObservableObject {
 

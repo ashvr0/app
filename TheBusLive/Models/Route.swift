@@ -18,9 +18,8 @@ struct BusRoute: Identifiable, Codable, Hashable {
     }
 }
 
-/// Wrapper matching the top level `routes` element, including the
-/// optional error message TheBus returns inline rather than as an
-/// HTTP error code.
+/// Wrapper for the top level `routes` element returned by the API,
+/// including the optional `error` field.
 struct RouteResponse: Codable {
     let routeName: String?
     let routeID: String?
@@ -29,11 +28,9 @@ struct RouteResponse: Codable {
 }
 
 extension BusRoute {
-    /// Full list of TheBus routes, loaded once from the bundled
-    /// `routes.json` (generated from GTFS `routes.txt` by
-    /// `Scripts/generate_stops_json.py`'s sibling script). Used so
-    /// route search/browse works without a live network call; live
-    /// arrivals/shape lookups still hit the API as needed.
+    /// Full list of TheBus routes loaded from the bundled `routes.json`.
+    /// Contains route data for route search and browsing.
+    /// Live arrival and route shape data are fetched from the API.
     static let allRoutes: [BusRoute] = {
         guard
             let url = Bundle.main.url(forResource: "routes", withExtension: "json"),

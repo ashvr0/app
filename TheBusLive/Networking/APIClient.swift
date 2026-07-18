@@ -17,7 +17,6 @@ actor APIClient {
     }
 
     // MARK: - Public requests
-
     func fetchArrivals(stopID: String) async throws -> ArrivalsResponse {
         let node = try await fetchXML(.arrivals(stopID: stopID))
         return try ArrivalsXMLMapper.map(node)
@@ -39,7 +38,6 @@ actor APIClient {
     }
 
     // MARK: - Core fetch
-
     private func fetchXML(_ endpoint: Endpoint) async throws -> XMLNode {
         guard APIConfig.hasKey else {
             throw APIError.missingAPIKey
@@ -75,7 +73,6 @@ actor APIClient {
 }
 
 // MARK: - Minimal XML tree
-
 /// A minimal generic XML node used as an intermediate representation
 /// before mapping into the app's typed models.
 final class XMLNode {
