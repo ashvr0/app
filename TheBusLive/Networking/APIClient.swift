@@ -10,7 +10,7 @@ actor APIClient {
 
     static let shared = APIClient()
     private let session: URLSession
-    private var arrivals Cache: [String: (data: ArrivalsResponse, timestamp: Date)] = [:]
+    private var arrivalsCache: [String: (data: ArrivalsResponse, timestamp: Date)] = [:]
     private let cacheExpirationSeconds: TimeInterval = 30
     private var inFlightRequests: [String: Task<Any, Error>] = [:]
     
