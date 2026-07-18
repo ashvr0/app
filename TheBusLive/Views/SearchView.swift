@@ -27,9 +27,9 @@ struct SearchView: View {
     private var filteredStops: [Stop] {
         guard !debouncedStopQuery.isEmpty else { return [] }
         let query = debouncedStopQuery.lowercased()
-        return Stop.allStops
+        return Array(Stop.allStops
             .filter { $0.name.lowercased().contains(query) || $0.stopID == debouncedStopQuery }
-            .prefix(100)
+            .prefix(100))
     }
 
     private var filteredRoutes: [BusRoute] {
@@ -42,7 +42,7 @@ struct SearchView: View {
             ($0.headsign ?? "").lowercased().contains(query)
         }.filter { !exactMatches.contains($0) }
 
-        return (exactMatches + partialMatches).prefix(100)
+        return Array((exactMatches + partialMatches).prefix(100))
     }
 
     var body: some View {
