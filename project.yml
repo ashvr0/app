@@ -18,8 +18,6 @@ settings:
     CODE_SIGN_STYLE: Automatic
     CURRENT_PROJECT_VERSION: "1"
     MARKETING_VERSION: "1.0.1"
-    # SideStore / ad hoc sideloading builds are typically signed after the
-    # fact, so CI produces an unsigned archive by default.
     CODE_SIGNING_ALLOWED: NO
     CODE_SIGNING_REQUIRED: NO
 
@@ -42,6 +40,8 @@ targets:
         CFBundleVersion: "1"
         UILaunchScreen: {}
         NSLocationWhenInUseUsageDescription: "TheBus Live uses your location to show nearby stops and center the map on your position."
+        NSSupportsLiveActivities: true
+        NSSupportsLiveActivitiesFrequentUpdates: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebuslive.app
@@ -49,4 +49,29 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: NO
-    capabilities: []
+    dependencies:
+      - target: TheBusLiveActivity
+        embed: true
+
+  TheBusLiveActivity:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.2"
+    sources:
+      - path: TheBusLive/LiveActivity
+        excludes:
+          - "LiveActivityManager.swift"
+          - "TrackButton.swift"
+    info:
+      path: TheBusLive/LiveActivity/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thebuslive.app.activity
+        PRODUCT_NAME: TheBusLiveActivity
+        SWIFT_VERSION: "5.0"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.2"
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO

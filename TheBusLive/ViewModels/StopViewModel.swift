@@ -13,9 +13,11 @@ final class StopViewModel: ObservableObject {
 
     @Published private(set) var arrivals: [Arrival] = []
     @Published private(set) var state: LoadState = .idle
-    /// When arrivals were last successfully fetched, used to show a
-    /// "Last refresh: h:mm a" subtitle under the stop name.
     @Published private(set) var lastRefreshed: Date?
+
+    // The route being actively tracked via Live Activity, if any.
+    // Set this when the user taps Track, cleared when they stop.
+    var trackedRouteNumber: String?
 
     let stop: Stop
     private let client: APIClient
@@ -26,10 +28,6 @@ final class StopViewModel: ObservableObject {
     }
 
     func loadArrivals() async {
-        // Only show the full-screen loading state on the very first
-        // fetch. Pull-to-refresh already has its own spinner, so
-        // flipping state to .loading here would blank out the list
-        // underneath it for no reason.
         if arrivals.isEmpty {
             state = .loading
         }
@@ -44,28 +42,28 @@ final class StopViewModel: ObservableObject {
 
             let sorted = (response.arrival ?? []).sorted { lhs, rhs in
                 switch (lhs.arrivalDate, rhs.arrivalDate) {
-                case let (l?, r?):
-                    return l < r
-                case (nil, _):
-                    return false
-                case (_, nil):
-                    return true
+                case let (l?, r?): return l < r
+                case (nil, _): return false
+                case (_, nil): return true
                 }
             }
 
             arrivals = sorted
             state = sorted.isEmpty ? .empty : .loaded
             lastRefreshed = Date()
+
+            // Push a Live Activity update if tracking is active
+            if let route = trackedRouteNumber {
+                await LiveActivityManager.shared.update(
+                    arrivals: sorted,
+                    routeNumber: route
+                )
+            }
+
         } catch is CancellationError {
-            // The task was cancelled (e.g. the view disappeared or a
-            // newer refresh superseded this one). Not a real failure,
-            // so leave whatever state was already showing alone rather
-            // than flashing an error at the user.
             return
         } catch let error as APIError {
-            if error.isCancellation {
-                return
-            }
+            if error.isCancellation { return }
             state = .failed(error.localizedDescription)
         } catch let urlError as URLError where urlError.code == .cancelled {
             return
