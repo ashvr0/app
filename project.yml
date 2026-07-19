@@ -32,6 +32,7 @@ targets:
           - "**/*.md"
           - "LiveActivity/**"
       - path: TheBusLive/LiveActivity/LiveActivityManager.swift
+      - path: TheBusLive/LiveActivity/BusArrivalAttributes.swift
     resources:
       - path: TheBusLive/Assets.xcassets
     info:
