@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 final class RouteViewModel: ObservableObject {
 
-    enum LoadState {
+    enum LoadState: Equatable {
         case idle
         case loading
         case loaded
