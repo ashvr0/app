@@ -31,7 +31,11 @@ final class LiveActivityManager: ObservableObject {
         isExpress: Bool,
         arrival: Arrival
     ) {
-        guard isSupported else { return }
+        DebugConsole.shared.log("🔵 start() called, isSupported: \(isSupported)")
+        guard isSupported else {
+            DebugConsole.shared.log("🔴 not supported — check Settings → TheBus Live → Live Activities")
+            return
+        }
 
         // End any existing activity before starting a new one
         Task { await endCurrent() }
@@ -57,8 +61,9 @@ final class LiveActivityManager: ObservableObject {
                 content: content,
                 pushType: nil // No push notifications, we update manually
             )
+            DebugConsole.shared.log("🟢 started, id: \(currentActivity?.id ?? "nil")")
         } catch {
-            NSLog("Live Activity failed to start: \(error)")
+            DebugConsole.shared.log("🔴 failed to start: \(error)")
         }
     }
 
@@ -68,7 +73,10 @@ final class LiveActivityManager: ObservableObject {
     /// Pass the full sorted arrivals array; the manager picks the first
     /// two matching the tracked route.
     func update(arrivals: [Arrival], routeNumber: String) async {
-        guard let activity = currentActivity else { return }
+        guard let activity = currentActivity else {
+            DebugConsole.shared.log("⚪️ update() called but no currentActivity")
+            return
+        }
 
         let matching = arrivals.filter {
             $0.route.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
@@ -86,6 +94,7 @@ final class LiveActivityManager: ObservableObject {
         )
 
         await activity.update(content)
+        DebugConsole.shared.log("🟡 updated activity \(activity.id), minutesAway: \(state.minutesAway.map(String.init) ?? "nil")")
     }
 
     // MARK: - End
@@ -98,6 +107,7 @@ final class LiveActivityManager: ObservableObject {
     private func endCurrent(dismissalPolicy: ActivityUIDismissalPolicy = .default) async {
         guard let activity = currentActivity else { return }
         await activity.end(nil, dismissalPolicy: dismissalPolicy)
+        DebugConsole.shared.log("⚫️ ended activity \(activity.id)")
         currentActivity = nil
     }
 

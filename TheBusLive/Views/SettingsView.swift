@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var showingPrivacyDetails = false
     @State private var showingAPIKeyInfo = false
     @State private var showingMissingKeyAlert = false
+    @State private var showingDebugConsole = false
     @State private var selectedURL: IdentifiableURL?
     @FocusState private var apiKeyFieldFocused: Bool
 
@@ -27,7 +28,7 @@ struct SettingsView: View {
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
     }
- // Changes apperance
+
     var body: some View {
         NavigationStack {
             Form {
@@ -77,9 +78,6 @@ struct SettingsView: View {
                         Label {
                             Text("Haptic Feedback")
                         } icon: {
-                            // Filled icon when on, outline when off, so the
-                            // row's own icon reflects the toggle state at a
-                            // glance rather than relying on the switch color alone.
                             Image(systemName: hapticsEnabled ? "hand.tap.fill" : "hand.tap")
                                 .contentTransition(.symbolEffect(.replace))
                         }
@@ -90,6 +88,7 @@ struct SettingsView: View {
                         }
                     }
                 }
+
                 Section {
                     HStack {
                         TextField("Paste your TheBus API key", text: $apiKey)
@@ -121,7 +120,6 @@ struct SettingsView: View {
                     }
                 }
 
-                // delte recent stops
                 Section("Data") {
                     Button(role: .destructive) {
                         showingClearRecentsConfirmation = true
@@ -129,7 +127,7 @@ struct SettingsView: View {
                         Label("Clear recent stops", systemImage: "clock.arrow.circlepath")
                     }
                 }
-                // About section
+
                 Section("About") {
                     LabeledContent("Version", value: appVersion)
                     Button {
@@ -190,6 +188,12 @@ struct SettingsView: View {
                         Text("Shows route-matching diagnostics on the vehicle tracking screen (vehicle's route name, stop counts, and match totals). Intended for troubleshooting missing stop pins.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        Button {
+                            showingDebugConsole = true
+                        } label: {
+                            Label("Debug Console", systemImage: "terminal")
+                        }
                     }
                 }
             }
@@ -209,6 +213,9 @@ struct SettingsView: View {
                 PrivacyDetailsView()
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $showingDebugConsole) {
+                DebugConsoleView()
             }
             .sheet(item: $selectedURL) { identifiableURL in
                 SafariView(url: identifiableURL.url)
@@ -245,9 +252,7 @@ struct SafariView: UIViewControllerRepresentable {
 }
 
 /// A short, plain-language explanation of the app's data practices,
-/// shown from the "No data collected" row in Settings. Kept as a
-/// dedicated view (rather than an alert) since alerts truncate long
-/// text and don't scroll well.
+/// shown from the "No data collected" row in Settings.
 private struct PrivacyDetailsView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -314,12 +319,12 @@ private struct PrivacyDetailsView: View {
                     Text("Our promise: this app will remain free, open source, and free of ads and tracking. Any future privacy related changes will be clearly explained here.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    
+
                     Divider()
 
                     Text("Privacy statement last updated: July 16, 2026.")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .navigationTitle("Privacy")
