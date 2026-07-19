@@ -30,6 +30,9 @@ targets:
       - path: TheBusLive
         excludes:
           - "**/*.md"
+          - "LiveActivity/**"
+      - path: TheBusLive/LiveActivity/LiveActivityManager.swift
+      - path: TheBusLive/LiveActivity/TrackButton.swift
     resources:
       - path: TheBusLive/Assets.xcassets
     info:
@@ -62,6 +65,7 @@ targets:
         excludes:
           - "LiveActivityManager.swift"
           - "TrackButton.swift"
+          - "Info.plist"
     info:
       path: TheBusLive/LiveActivity/Info.plist
       properties:
