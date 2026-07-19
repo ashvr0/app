@@ -1,10 +1,5 @@
 import SwiftUI
 
-/// A "Track" button shown on each live estimated arrival row.
-/// Tapping it starts a Live Activity for that arrival so the countdown
-/// appears on the Dynamic Island and lock screen.
-///
-/// Add this inside `ArrivalRow` or place it as a swipe action on the row.
 struct TrackButton: View {
     let arrival: Arrival
     let stop: Stop
@@ -13,13 +8,7 @@ struct TrackButton: View {
     @State private var isTracking = false
 
     var body: some View {
-        // Only show for live estimated arrivals — scheduled ones
-        // have no vehicle position and won't update meaningfully.
-        guard arrival.estimated && !arrival.isCanceled else {
-            return AnyView(EmptyView())
-        }
-
-        return AnyView(
+        if arrival.estimated && !arrival.isCanceled {
             Button {
                 if isTracking {
                     Task { await LiveActivityManager.shared.end() }
@@ -43,6 +32,6 @@ struct TrackButton: View {
                 )
             }
             .tint(isTracking ? .red : .green)
-        )
+        }
     }
 }
