@@ -8,6 +8,8 @@ struct MapView: View {
     @StateObject private var viewModel = VehicleMapViewModel()
     @AppStorage(AppPreferenceKeys.mapStyle) private var mapStyleRaw: String = AppMapStyleOption.standard.rawValue
     @AppStorage(AppPreferenceKeys.debugModeEnabled) private var debugModeEnabled: Bool = false
+    @State private var previewStop: Stop?
+    @State private var detailStop: Stop?
 
     private var mapStyle: MapStyle {
         (AppMapStyleOption(rawValue: mapStyleRaw) ?? .standard).mapStyle
@@ -79,7 +81,25 @@ struct MapView: View {
 
                 ForEach(routeStops) { stop in
                     Annotation(stop.name, coordinate: stop.coordinate) {
-                        RouteStopPin(isNextStop: stop.id == nearestUpcomingStop?.id)
+                        Button {
+                            HapticsManager.shared.light()
+                            previewStop = stop
+                        } label: {
+                            RouteStopPin(isNextStop: stop.id == nearestUpcomingStop?.id)
+                                .frame(width: 32, height: 32)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .popover(item: Binding(
+                            get: { previewStop?.id == stop.id ? previewStop : nil },
+                            set: { previewStop = $0 }
+                        )) { selectedStop in
+                            StopArrivalsPreview(stop: selectedStop) {
+                                previewStop = nil
+                                detailStop = selectedStop
+                            }
+                            .presentationCompactAdaptation(.popover)
+                        }
                     }
                 }
 
@@ -135,6 +155,13 @@ struct MapView: View {
         }
         .onDisappear {
             viewModel.stopAutoRefresh()
+        }
+        .sheet(item: $detailStop) { stop in
+            NavigationStack {
+                StopDetailView(stop: stop)
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
         }
     }
 }
