@@ -93,12 +93,12 @@ struct SearchView: View {
                 .navigationDestination(isPresented: $showingAllStopsMap) {
                     AllStopsMapView()
                 }
-                .searchable(text: $query, prompt: "Stop name, stop number, or route")
-                .searchScopes($scope) {
-                    ForEach(SearchScope.allCases) { scope in
-                        Text(scope.rawValue).tag(scope)
-                    }
-                }
+        }
+        .searchable(text: $query, prompt: "Stop name, stop number, or route")
+        .searchScopes($scope) {
+            ForEach(SearchScope.allCases) { scope in
+                Text(scope.rawValue).tag(scope)
+            }
         }
         .onChange(of: query) { _, newValue in
             debounceTask?.cancel()
