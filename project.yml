@@ -1,4 +1,5 @@
 name: TheBusLive
+
 options:
   bundleIdPrefix: com.thebuslive
   deploymentTarget:
@@ -16,16 +17,18 @@ settings:
     TARGETED_DEVICE_FAMILY: "1,2"
     ENABLE_PREVIEWS: YES
     CODE_SIGN_STYLE: Automatic
+    CODE_SIGNING_ALLOWED: YES
+    CODE_SIGNING_REQUIRED: YES
     CURRENT_PROJECT_VERSION: "1"
     MARKETING_VERSION: "1.0.1"
-    CODE_SIGNING_ALLOWED: NO
-    CODE_SIGNING_REQUIRED: NO
 
 targets:
+
   TheBusLive:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
+
     sources:
       - path: TheBusLive
         excludes:
@@ -33,58 +36,54 @@ targets:
           - "LiveActivity/**"
       - path: TheBusLive/LiveActivity/LiveActivityManager.swift
       - path: TheBusLive/LiveActivity/BusArrivalAttributes.swift
+
     resources:
       - path: TheBusLive/Assets.xcassets
+
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebuslive.app
-        PRODUCT_NAME: TheBus Live
+        PRODUCT_NAME: "TheBus Live"
+
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        # Info.plist is hand-written, not generated. Setting this to YES
-        # while also pointing INFOPLIST_FILE at a real plist causes
-        # XcodeGen to regenerate/overwrite it from a much thinner key
-        # set, silently dropping keys the extension target actually
-        # needs. Same class of bug that caused the extension's
-        # .unsupportedTarget failure below — keep both plists as the
-        # single source of truth.
+
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: TheBusLive/Info.plist
+
+        CODE_SIGN_STYLE: Automatic
         CODE_SIGN_ENTITLEMENTS: TheBusLive/TheBusLive.entitlements
+
     dependencies:
-      # `embed: true` alone can produce a plain copy-files step rather
-      # than a real "Embed Foundation Extensions" phase, which is what
-      # ActivityKit needs to discover the extension at launch. Being
-      # explicit here avoids the extension silently failing to register,
-      # which surfaces at runtime as Activity.request throwing
-      # .unsupportedTarget instead of a build-time error.
       - target: TheBusLiveActivity
         embed: true
         codeSignOnCopy: true
 
+
   TheBusLiveActivity:
     type: app-extension
     platform: iOS
-    deploymentTarget: "16.2"
+    deploymentTarget: "17.0"
+
     sources:
       - path: TheBusLive/LiveActivity
         excludes:
           - "LiveActivityManager.swift"
           - "Info.plist"
+
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebuslive.app.activity
         PRODUCT_NAME: TheBusLiveActivity
+
         SWIFT_VERSION: "5.0"
-        IPHONEOS_DEPLOYMENT_TARGET: "16.2"
-        CODE_SIGNING_ALLOWED: NO
-        CODE_SIGNING_REQUIRED: NO
-        # This plist already has CFBundlePackageType: XPC! and the
-        # NSExtension/NSExtensionPointIdentifier dict WidgetKit needs.
-        # Generating from info.properties instead drops
-        # CFBundlePackageType, which stops iOS from registering the
-        # bundle as a valid extension target — Activity.request then
-        # throws .unsupportedTarget with no build-time error to point at.
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGNING_REQUIRED: YES
+
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: TheBusLive/LiveActivity/Info.plist
+
         CODE_SIGN_ENTITLEMENTS: TheBusLive/LiveActivity/TheBusLiveActivity.entitlements
