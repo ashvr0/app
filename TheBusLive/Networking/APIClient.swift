@@ -13,8 +13,8 @@ actor APIClient {
     private let cacheExpirationSeconds: TimeInterval = 30
     private var inFlightRequests: [String: Task<ArrivalsResponse, Error>] = [:]
 
-    private let cacheLock = NSLock()
-    private let requestLock = NSLock()
+    nonisolated(unsafe) private let cacheLock = NSLock()
+    nonisolated(unsafe) private let requestLock = NSLock()
 
     init(session: URLSession = .shared) {
         self.session = session
