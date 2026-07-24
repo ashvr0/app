@@ -17,13 +17,22 @@
       "screenshotURLs": [
         "https://raw.githubusercontent.com/ashvr0/TheBusLive/main/Assets/MockUp.png"
       ],
-        "appPermissions": {
+      "appPermissions": {
         "entitlements": [],
         "privacy": {
           "NSLocationWhenInUseUsageDescription": "TheBus Live uses your location to show nearby stops and center the map on your position."
         }
-    },
+      },
       "versions": [
+        {
+          "version": "1.0.2",
+          "buildVersion": "2",
+          "date": "2026-07-24",
+          "localizedDescription": "Version 1.0.2 release.",
+          "downloadURL": "https://github.com/ashvr0/TheBusLive/releases/download/v1.0.2/TheBusLive-unsigned.ipa",
+          "size": 3067091,
+          "minOSVersion": "17.0"
+        },
         {
           "version": "1.0.1",
           "buildVersion": "1",
